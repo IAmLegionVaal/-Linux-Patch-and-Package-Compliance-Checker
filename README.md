@@ -1,37 +1,61 @@
 # Linux Patch and Package Compliance Checker
 
-A read-only Bash toolkit for assessing Linux package-manager health, available updates, security updates, repository configuration, and reboot requirements.
+A Linux support toolkit for auditing package compliance and repairing package-manager or update problems on APT, DNF and YUM systems.
 
-## Features
-
-- Detects APT, DNF, or YUM environments
-- Reports available and security-related updates
-- Captures configured package repositories
-- Identifies held, excluded, or version-locked packages where supported
-- Detects reboot-required indicators
-- Reviews package-manager timers and automatic-update services
-- Produces text, CSV, and JSON reports
-
-## Usage
+## Audit script
 
 ```bash
 chmod +x src/linux_patch_compliance.sh
 sudo ./src/linux_patch_compliance.sh
 ```
 
-Use `--refresh-metadata` only when package metadata may be stale. This performs a package-list refresh but does not install updates.
+Refresh metadata during an audit:
 
 ```bash
 sudo ./src/linux_patch_compliance.sh --refresh-metadata
 ```
 
-## Safety
+## Repair script
 
-By default the script is read-only. It never installs, removes, upgrades, downgrades, or reboots a system. Metadata refresh is optional and clearly requested.
+Preview package-manager repair:
 
-## Validation
+```bash
+chmod +x src/linux_patch_repair.sh
+sudo ./src/linux_patch_repair.sh --repair-manager --dry-run
+```
 
-Test on Debian/Ubuntu and a RHEL-compatible distribution, including a host with pending updates and a fully patched lab host.
+Repair package-manager state and refresh metadata:
+
+```bash
+sudo ./src/linux_patch_repair.sh --repair-manager --refresh
+```
+
+Install security updates or all updates:
+
+```bash
+sudo ./src/linux_patch_repair.sh --install-security
+sudo ./src/linux_patch_repair.sh --install-all
+```
+
+Clean package-manager caches:
+
+```bash
+sudo ./src/linux_patch_repair.sh --clean-cache
+```
+
+## What the repair does
+
+- Detects APT, DNF or YUM.
+- Repairs interrupted dpkg configuration and broken APT dependencies.
+- Checks DNF or YUM package state and refreshes metadata.
+- Installs security-only updates where the platform provides a supported mechanism.
+- Can install all available package updates.
+- Can clean package-manager caches.
+- Records package state before and after repair and returns clear exit codes.
+
+## Safety and limitations
+
+Update installation can restart services and may require a system reboot. The script never reboots automatically. APT security-only mode requires the distribution's unattended-upgrade tooling. Review package removals, held packages and application compatibility before broad upgrades.
 
 ## Author
 
